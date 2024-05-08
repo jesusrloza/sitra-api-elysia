@@ -2,14 +2,24 @@
   "name": "sitra-api-elysia",
   "version": "1.0.50",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "commit": "cz"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@elysiajs/cors": "^1.0.2",
+    "@elysiajs/swagger": "^1.0.5",
+    "elysia": "latest",
+    "mssql": "^10.0.2"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "@types/mssql": "^9.1.5",
+    "bun-types": "latest",
+    "cz-conventional-changelog": "^3.3.0"
   },
-  "module": "src/index.js"
+  "module": "src/index.js",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
