@@ -3,8 +3,8 @@ import swagger from '@elysiajs/swagger'
 import { Elysia } from 'elysia'
 
 // todo: fix sql server connection
-// import { connectToDatabase } from "./database/connection";
-// connectToDatabase();
+import { connectToDatabase } from './database/connection'
+connectToDatabase()
 
 const PORT = 3000
 const app = new Elysia()
