@@ -1,17 +1,29 @@
 import sql from 'mssql'
-import { config } from './connConfig'
+
+const config: sql.config = {
+  user: process.env.DB_USER,
+  password: process.env.DB_PWD,
+  server: process.env.SERVER_IP_ADDRESS || '',
+  database: process.env.DB_NAME,
+  connectionTimeout: 10000,
+  options: {
+    encrypt: false,
+  },
+  port: 1433, // Standard SQL Server port
+  authentication: {
+    type: 'default', // Indicates Windows Authentication
+    options: {
+      userName: process.env.DB_USER,
+      password: process.env.DB_PWD,
+    },
+  },
+}
 
 export async function connectToDatabase() {
   try {
-    console.log('Connection attempt')
-    const pool = await sql.connect(config)
-    const res = await pool.query('select * from [EJERCICIOS2].[dbo].[UsuariosSITRA]')
-    console.log(res)
-    console.log('Connected to SQL Server!')
-    return pool
+    console.log('Connecting to SQL server')
+    return await sql.connect(config)
   } catch (err) {
     console.error('Error connecting to SQL Server:', err)
   }
 }
-
-connectToDatabase()

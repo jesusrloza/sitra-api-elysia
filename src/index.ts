@@ -1,10 +1,9 @@
 import cors from '@elysiajs/cors'
 import swagger from '@elysiajs/swagger'
 import { Elysia } from 'elysia'
-
-// todo: fix sql server connection
 import { connectToDatabase } from './database/connection'
-connectToDatabase()
+
+const pool = await connectToDatabase()
 
 const PORT = 3000
 const app = new Elysia()
@@ -18,7 +17,12 @@ const app = new Elysia()
   .get('/catalogs/fiscalia', () => ({ message: 'endpoint fiscalia' }))
   .get('/catalogs/municipio', () => ({ message: 'endpoint municipio' }))
 
-  .post('/auth', () => ({ message: 'endpoint auth, request access' }))
+  .post('/auth', async () => {
+    if (!pool) return []
+    const { recordset } = await pool.query('select * from [EJERCICIOS2].[dbo].[UsuariosSITRA]')
+    return recordset
+  })
+
   .post('/carpeta', () => ({ message: 'endpoint carpeta, request access' }))
   .post('/imputado', () => ({ message: 'endpoint imputado, request access' }))
   .post('/victima', () => ({ message: 'endpoint victima, request access' }))
