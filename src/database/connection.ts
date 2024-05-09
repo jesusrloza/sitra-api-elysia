@@ -6,12 +6,10 @@ const config: sql.config = {
   server: process.env.SERVER_IP_ADDRESS || '',
   database: process.env.DB_NAME,
   connectionTimeout: 10000,
-  options: {
-    encrypt: false,
-  },
+  options: { encrypt: false },
   port: 1433, // Standard SQL Server port
   authentication: {
-    type: 'default', // Indicates Windows Authentication
+    type: 'default',
     options: {
       userName: process.env.DB_USER,
       password: process.env.DB_PWD,

@@ -12,10 +12,38 @@ const app = new Elysia()
   .use(cors())
   .get('/', () => ({ message: 'SITRA backend 💽' }))
 
-  .get('/catalogs/anio', async () => await querySqlServer(pool, `distinct format(FechaInicio, 'yyyy')`, `Carpeta`))
-  .get('/catalogs/delito', async () => await querySqlServer(pool, `distinct (Grupo)`, `AgrupacionDelito`))
-  .get('/catalogs/fiscalia', async () => await querySqlServer(pool, `Nombre`, `cat.CatFiscalias`))
-  .get('/catalogs/municipio', async () => await querySqlServer(pool, `Nombre`, `cat.CatMunicipios`))
+  .get(
+    '/catalogs/anio',
+    async () =>
+      await querySqlServer(pool, {
+        from: `Carpeta`,
+        select: `distinct format(FechaInicio, 'yyyy')`,
+      })
+  )
+  .get(
+    '/catalogs/delito',
+    async () =>
+      await querySqlServer(pool, {
+        from: 'AgrupacionDelito',
+        select: 'distinct (Grupo)',
+      })
+  )
+  .get(
+    '/catalogs/fiscalia',
+    async () =>
+      await querySqlServer(pool, {
+        from: 'cat.CatFiscalias',
+        select: 'Nombre',
+      })
+  )
+  .get(
+    '/catalogs/municipio',
+    async () =>
+      await querySqlServer(pool, {
+        from: 'cat.CatMunicipios',
+        select: 'Nombre',
+      })
+  )
 
   .post('/auth', async () => {
     if (!pool) return []
