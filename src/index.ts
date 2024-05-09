@@ -46,12 +46,20 @@ const app = new Elysia()
   )
 
   .post('/auth', async () => {
+    // todo: handle authentication
     if (!pool) return []
     const { recordset } = await pool.query(`select * from [EJERCICIOS2].[dbo].[UsuariosSITRA]`)
     return recordset
   })
 
-  .post('/carpeta', () => ({ message: 'endpoint carpeta' }))
+  .post('/carpeta', async () => {
+    // todo: form sql queries based on selected filters in the react app
+    if (!pool) return []
+    const { recordset } = await pool.query(
+      `select * from Carpeta where Contar = 1 and year(FechaInicio) in ('2023', '2024') and DelitoAgrupado = 'Acoso Sexual'`
+    )
+    return recordset.length
+  })
   .post('/imputado', () => ({ message: 'endpoint imputado' }))
   .post('/victima', () => ({ message: 'endpoint victima' }))
 
