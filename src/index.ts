@@ -1,8 +1,9 @@
 import cors from '@elysiajs/cors'
 import swagger from '@elysiajs/swagger'
 import { Elysia } from 'elysia'
-import { connectToDatabase } from './database/connection'
-import { querySqlServer } from './utils'
+import { delitos, fiscalias, municipios, years } from './constants'
+import { connectToDatabase } from './database'
+import { query } from './utils'
 
 const pool = await connectToDatabase()
 const PORT = 3000
@@ -14,35 +15,42 @@ const app = new Elysia()
 
   .get(
     '/catalogs/anio',
-    async () =>
-      await querySqlServer(pool, {
-        from: `Carpeta`,
-        select: `distinct format(FechaInicio, 'yyyy')`,
-      })
+    () => years
+    // async () =>
+    //   await query.singleColumn(pool, {
+    //     from: `Carpeta`,
+    //     select: `distinct format(FechaInicio, 'yyyy')`,
+    //   })
   )
   .get(
     '/catalogs/delito',
+    // () => delitos
     async () =>
-      await querySqlServer(pool, {
+      await query.singleColumn(pool, {
         from: 'AgrupacionDelito',
         select: 'distinct (Grupo)',
+        orderBy: 'Grupo',
       })
   )
   .get(
     '/catalogs/fiscalia',
-    async () =>
-      await querySqlServer(pool, {
-        from: 'cat.CatFiscalias',
-        select: 'Nombre',
-      })
+    () => fiscalias
+    // async () =>
+    //   await query.singleColumn(pool, {
+    //     from: 'cat.CatFiscalias',
+    //     select: 'Nombre',
+    //     orderBy: 'Nombre',
+    //   })
   )
   .get(
     '/catalogs/municipio',
-    async () =>
-      await querySqlServer(pool, {
-        from: 'cat.CatMunicipios',
-        select: 'Nombre',
-      })
+    () => municipios
+    // async () =>
+    //   await query.singleColumn(pool, {
+    //     from: 'cat.CatMunicipios',
+    //     select: 'Nombre',
+    //     orderBy: 'Nombre',
+    //   })
   )
 
   .post('/auth', async () => {
