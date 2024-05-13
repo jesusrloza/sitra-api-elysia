@@ -3,10 +3,11 @@ import swagger from '@elysiajs/swagger'
 import { Elysia } from 'elysia'
 import { delitos, fiscalias, municipios, years } from './constants'
 import { connectToDatabase } from './database'
-import { query } from './utils'
+import { queryDB } from './utils'
 
 const pool = await connectToDatabase()
 const PORT = 3000
+const alias = 'data'
 
 const app = new Elysia()
   .use(swagger())
@@ -15,43 +16,75 @@ const app = new Elysia()
 
   .get(
     '/catalogs/anio',
-    () => years
-    // async () =>
-    //   await query.arrayFromColumn(pool, {
-    //     from: `Carpeta`,
-    //     select: `distinct format(FechaInicio, 'yyyy')`,
-    //   })
+    // () => years
+    async () => {
+      const alias = 'anio'
+      const payload = await queryDB(pool, {
+        from: 'Carpeta',
+        select: `distinct format(FechaInicio, 'yyyy') as "${alias}"`,
+        orderBy: alias,
+      })
+      return payload.map((el) => el[alias])
+    }
   )
   .get(
     '/catalogs/delito',
     // () => delitos
-    async () =>
-      await query.arrayFromColumn(pool, {
+    async () => {
+      const payload = await queryDB(pool, {
         from: 'AgrupacionDelito',
-        select: 'distinct (Grupo)',
-        orderBy: 'Grupo',
+        select: `distinct (Grupo) as "${alias}"`,
+        orderBy: alias,
       })
+      return payload.map((el) => el[alias])
+    }
   )
   .get(
     '/catalogs/fiscalia',
-    () => fiscalias
-    // async () =>
-    //   await query.arrayFromColumn(pool, {
-    //     from: 'cat.CatFiscalias',
-    //     select: 'Nombre',
-    //     orderBy: 'Nombre',
-    //   })
+    // () => fiscalias
+    async () => {
+      const payload = await queryDB(pool, {
+        from: 'cat.CatFiscalias',
+        select: `Nombre as "${alias}"`,
+        orderBy: alias,
+      })
+      return payload.map((el) => el[alias])
+    }
   )
   .get(
     '/catalogs/municipio',
-    () => municipios
-    // async () =>
-    //   await query.arrayFromColumn(pool, {
-    //     from: 'cat.CatMunicipios',
-    //     select: 'Nombre',
-    //     orderBy: 'Nombre',
-    //   })
+    // () => municipios
+    async () => {
+      const payload = await queryDB(pool, {
+        from: 'cat.CatMunicipios',
+        select: `Nombre as "${alias}"`,
+        orderBy: alias,
+      })
+      return payload.map((el) => el[alias])
+    }
   )
+
+  .post('/carpeta', async ({ body }) => {
+    try {
+      const [yearScope, fiscalias, cities, crimes, requests] = body as any[]
+      const payload = await queryDB(pool, {
+        from: 'Carpeta',
+        select: `*`,
+        where: [
+          `Contar = 1`,
+          `${yearScope.length ? `year(FechaInicio) in (${yearScope.join(', ')})` : ''}`,
+          `${fiscalias.length ? `Fiscalia in ('${fiscalias.join("', '")}')` : ''}`,
+          `${cities.length ? `Municipio in ('${cities.join("', '")}')` : ''}`,
+          `${crimes.length ? `DelitoAgrupado in ('${crimes.join("', '")}')` : ''}`,
+        ].filter(Boolean),
+      })
+      return payload
+    } catch (error) {
+      return error
+    }
+  })
+  .post('/imputado', () => ({ message: 'endpoint imputado' }))
+  .post('/victima', () => ({ message: 'endpoint victima' }))
 
   .post('/auth', async () => {
     // todo: handle authentication
@@ -59,17 +92,6 @@ const app = new Elysia()
     const { recordset } = await pool.query(`select * from [EJERCICIOS2].[dbo].[UsuariosSITRA]`)
     return recordset
   })
-
-  .post('/carpeta', async () => {
-    // todo: form sql queries based on selected filters in the react app
-    if (!pool) return []
-    const { recordset } = await pool.query(
-      `select * from Carpeta where Contar = 1 and year(FechaInicio) in ('2023', '2024') and DelitoAgrupado = 'Acoso Sexual'`
-    )
-    return recordset.length
-  })
-  .post('/imputado', () => ({ message: 'endpoint imputado' }))
-  .post('/victima', () => ({ message: 'endpoint victima' }))
 
   .listen(PORT)
 
