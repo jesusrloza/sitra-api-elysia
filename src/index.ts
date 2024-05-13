@@ -176,7 +176,7 @@ const app = new Elysia()
     const payload = await query(pool, {
       from: 'UsuariosSITRA',
       select: `*`,
-      where: [`Usuario = '${username}'`, `Contrasena = '${hashedPassword}'`],
+      where: [`Usuario = '${username}'`, `Contrasena = '${hashedPassword}'`, `Estatus = 1`],
     })
     return payload
   })
