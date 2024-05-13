@@ -1,7 +1,8 @@
 import cors from '@elysiajs/cors'
 import swagger from '@elysiajs/swagger'
+import { createHash } from 'crypto'
 import { Elysia } from 'elysia'
-import { QueryReqBody } from '../types/schemas'
+import { AuthReqBody, QueryReqBody } from '../types/schemas'
 import { connectToDatabase, query } from './database'
 
 const pool = await connectToDatabase()
@@ -154,12 +155,30 @@ const app = new Elysia()
     }
   })
 
-  .post('/auth', async () => {
-    // todo: handle authentication
-    if (!pool) return []
-    // const { recordset } = await pool.query(`select * from [EJERCICIOS2].[dbo].[UsuariosSITRA]`)
-    const { recordset } = await pool.query(`select * from UsuariosSITRA`)
-    return recordset
+  .post('/auth', async ({ body, path }) => {
+    const parsed = AuthReqBody.safeParse(body)
+    if (!parsed.success) {
+      console.error(parsed.error.stack)
+      throw {
+        name: parsed.error.name,
+        location: path,
+        issues: parsed.error.issues,
+      }
+    }
+
+    const [username, password] = parsed.data
+
+    //! WARNING: this is a very insecure way to handle passwords
+    //! password should be hashed client-side before sending it to the server
+    const hash = createHash('sha256')
+    const hashedPassword = hash.update(password).digest('hex')
+
+    const payload = await query(pool, {
+      from: 'UsuariosSITRA',
+      select: `*`,
+      where: [`Usuario = '${username}'`, `Contrasena = '${hashedPassword}'`],
+    })
+    return payload
   })
 
   .listen(PORT)
