@@ -1,0 +1,18 @@
+[
+  {
+    "#": "1",
+    "Sexo": "DESCONOCIDO",
+    "Edad": 0,
+    "Escolaridad": "N/E",
+    "Profesion": "N/E",
+    "Nacionalidad": "N/E",
+    "Parentesco": "N/E",
+    "Tipo de arma": "Desconocida",
+    "Detenido": "NO",
+    "Mes": "abril",
+    "Anio": 2023,
+    "Fiscalia": "Apatzingán",
+    "Municipio": "Aguililla",
+    "Delito": "Abigeato"
+  }
+]

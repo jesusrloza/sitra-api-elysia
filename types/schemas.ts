@@ -7,3 +7,4 @@ export const QueryReqBody = z.tuple([
   z.array(z.string()), // crimes
   z.array(z.string()), // requests
 ])
+export type QueryReqBody = z.infer<typeof QueryReqBody>

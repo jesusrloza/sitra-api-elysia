@@ -85,6 +85,7 @@ const app = new Elysia()
           `${fiscalias.length ? `Fiscalia in ('${fiscalias.join("', '")}')` : ''}`,
           `${cities.length ? `Municipio in ('${cities.join("', '")}')` : ''}`,
           `${crimes.length ? `DelitoAgrupado in ('${crimes.join("', '")}')` : ''}`,
+          //todo: handle requests
         ].filter(Boolean),
       })
       return payload
@@ -92,13 +93,72 @@ const app = new Elysia()
       return error
     }
   })
-  .post('/imputado', () => ({ message: 'endpoint imputado' }))
-  .post('/victima', () => ({ message: 'endpoint victima' }))
+  .post('/imputado', async ({ body, path }) => {
+    try {
+      const parsed = QueryReqBody.safeParse(body)
+      if (!parsed.success) {
+        console.error(parsed.error.stack)
+        throw {
+          name: parsed.error.name,
+          location: path,
+          issues: parsed.error.issues,
+        }
+      }
+
+      const [yearScope, fiscalias, cities, crimes, requests] = parsed.data
+      const payload = await query(pool, {
+        from: 'Imputado',
+        select: `*`,
+        where: [
+          `Contar = 1`,
+          `${yearScope.length ? `year(FechaInicio) in (${yearScope.join(', ')})` : ''}`,
+          `${fiscalias.length ? `Fiscalia in ('${fiscalias.join("', '")}')` : ''}`,
+          `${cities.length ? `[Municipio Hecho] in ('${cities.join("', '")}')` : ''}`,
+          `${crimes.length ? `DelitoAgrupado in ('${crimes.join("', '")}')` : ''}`,
+          //todo: handle requests
+        ].filter(Boolean),
+      })
+      return payload
+    } catch (error) {
+      return error
+    }
+  })
+  .post('/victima', async ({ body, path }) => {
+    try {
+      const parsed = QueryReqBody.safeParse(body)
+      if (!parsed.success) {
+        console.error(parsed.error.stack)
+        throw {
+          name: parsed.error.name,
+          location: path,
+          issues: parsed.error.issues,
+        }
+      }
+
+      const [yearScope, fiscalias, cities, crimes, requests] = parsed.data
+      const payload = await query(pool, {
+        from: 'Victima',
+        select: `*`,
+        where: [
+          `Contar = 1`,
+          `${yearScope.length ? `year(FechaInicio) in (${yearScope.join(', ')})` : ''}`,
+          `${fiscalias.length ? `Fiscalia in ('${fiscalias.join("', '")}')` : ''}`,
+          `${cities.length ? `[Municipio Hecho] in ('${cities.join("', '")}')` : ''}`,
+          `${crimes.length ? `DelitoAgrupado in ('${crimes.join("', '")}')` : ''}`,
+          //todo: handle requests
+        ].filter(Boolean),
+      })
+      return payload
+    } catch (error) {
+      return error
+    }
+  })
 
   .post('/auth', async () => {
     // todo: handle authentication
     if (!pool) return []
-    const { recordset } = await pool.query(`select * from [EJERCICIOS2].[dbo].[UsuariosSITRA]`)
+    // const { recordset } = await pool.query(`select * from [EJERCICIOS2].[dbo].[UsuariosSITRA]`)
+    const { recordset } = await pool.query(`select * from UsuariosSITRA`)
     return recordset
   })
 

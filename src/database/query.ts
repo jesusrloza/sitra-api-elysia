@@ -12,10 +12,8 @@ export const query = async (pool: ConnectionPool | undefined, query: SqlQueryPar
     groupBy ? `group by ${groupBy}` : '',
     having ? `having ${having}` : '',
     orderBy ? `order by ${orderBy}` : '',
-  ]
-
-  console.log(q.join(' '))
-
-  const { recordset } = await pool.query(q.join(' '))
+  ].join(' ')
+  console.log(q)
+  const { recordset } = await pool.query(q)
   return recordset
 }
