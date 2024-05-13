@@ -1,9 +1,8 @@
 import cors from '@elysiajs/cors'
 import swagger from '@elysiajs/swagger'
 import { Elysia } from 'elysia'
-import { delitos, fiscalias, municipios, years } from './constants'
-import { connectToDatabase } from './database'
-import { queryDB } from './utils'
+import { QueryReqBody } from '../types/schemas'
+import { connectToDatabase, query } from './database'
 
 const pool = await connectToDatabase()
 const PORT = 3000
@@ -19,7 +18,7 @@ const app = new Elysia()
     // () => years
     async () => {
       const alias = 'anio'
-      const payload = await queryDB(pool, {
+      const payload = await query(pool, {
         from: 'Carpeta',
         select: `distinct format(FechaInicio, 'yyyy') as "${alias}"`,
         orderBy: alias,
@@ -31,7 +30,7 @@ const app = new Elysia()
     '/catalogs/delito',
     // () => delitos
     async () => {
-      const payload = await queryDB(pool, {
+      const payload = await query(pool, {
         from: 'AgrupacionDelito',
         select: `distinct (Grupo) as "${alias}"`,
         orderBy: alias,
@@ -43,7 +42,7 @@ const app = new Elysia()
     '/catalogs/fiscalia',
     // () => fiscalias
     async () => {
-      const payload = await queryDB(pool, {
+      const payload = await query(pool, {
         from: 'cat.CatFiscalias',
         select: `Nombre as "${alias}"`,
         orderBy: alias,
@@ -55,7 +54,7 @@ const app = new Elysia()
     '/catalogs/municipio',
     // () => municipios
     async () => {
-      const payload = await queryDB(pool, {
+      const payload = await query(pool, {
         from: 'cat.CatMunicipios',
         select: `Nombre as "${alias}"`,
         orderBy: alias,
@@ -64,10 +63,20 @@ const app = new Elysia()
     }
   )
 
-  .post('/carpeta', async ({ body }) => {
+  .post('/carpeta', async ({ body, path }) => {
     try {
-      const [yearScope, fiscalias, cities, crimes, requests] = body as any[]
-      const payload = await queryDB(pool, {
+      const parsed = QueryReqBody.safeParse(body)
+      if (!parsed.success) {
+        console.error(parsed.error.stack)
+        throw {
+          name: parsed.error.name,
+          location: path,
+          issues: parsed.error.issues,
+        }
+      }
+
+      const [yearScope, fiscalias, cities, crimes, requests] = parsed.data
+      const payload = await query(pool, {
         from: 'Carpeta',
         select: `*`,
         where: [

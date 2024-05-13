@@ -1,8 +1,2 @@
-export type SqlQueryParts = {
-  select: string
-  from: string
-  where?: string[]
-  groupBy?: string
-  having?: string
-  orderBy?: string
-}
+export * from './schemas'
+export * from './sql'
