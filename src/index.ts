@@ -17,7 +17,7 @@ const app = new Elysia()
     '/catalogs/anio',
     () => years
     // async () =>
-    //   await query.singleColumn(pool, {
+    //   await query.arrayFromColumn(pool, {
     //     from: `Carpeta`,
     //     select: `distinct format(FechaInicio, 'yyyy')`,
     //   })
@@ -26,7 +26,7 @@ const app = new Elysia()
     '/catalogs/delito',
     // () => delitos
     async () =>
-      await query.singleColumn(pool, {
+      await query.arrayFromColumn(pool, {
         from: 'AgrupacionDelito',
         select: 'distinct (Grupo)',
         orderBy: 'Grupo',
@@ -36,7 +36,7 @@ const app = new Elysia()
     '/catalogs/fiscalia',
     () => fiscalias
     // async () =>
-    //   await query.singleColumn(pool, {
+    //   await query.arrayFromColumn(pool, {
     //     from: 'cat.CatFiscalias',
     //     select: 'Nombre',
     //     orderBy: 'Nombre',
@@ -46,7 +46,7 @@ const app = new Elysia()
     '/catalogs/municipio',
     () => municipios
     // async () =>
-    //   await query.singleColumn(pool, {
+    //   await query.arrayFromColumn(pool, {
     //     from: 'cat.CatMunicipios',
     //     select: 'Nombre',
     //     orderBy: 'Nombre',

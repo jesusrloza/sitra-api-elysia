@@ -2,7 +2,7 @@ import { ConnectionPool } from 'mssql'
 import { SqlQueryParts } from '../../types'
 
 export const query = {
-  singleColumn: async (pool: ConnectionPool | undefined, query: SqlQueryParts) => {
+  arrayFromColumn: async (pool: ConnectionPool | undefined, query: SqlQueryParts): Promise<any[]> => {
     if (!pool) return []
 
     const { select, from, where, groupBy, having, orderBy } = query
